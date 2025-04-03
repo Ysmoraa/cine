@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="pelicula-detalle">
+    <h1>{{ pelicula.titulo }}</h1>
+    <img src="{{ pelicula.imagen.url }}" alt="{{ pelicula.titulo }}" class="pelicula-imagen">
+
+    <div class="pelicula-info">
+        <p><strong>🎭 Género:</strong> {{ pelicula.genero }}</p>
+        <p><strong>🎞️ Formato:</strong> {{ pelicula.formato }}</p>
+        <p><strong>⭐ Calificación:</strong> {{ pelicula.calificacion }}/5</p>
+        <p><strong>📜 Sinopsis:</strong> {{ pelicula.sinopsis }}</p>
+    </div>
+</div>
+
+<h2>⏰ Horarios Disponibles</h2>
+<ul class="horarios-lista">
+    {% for horario in horarios %}
+        <li>
+            📅 <strong>{{ horario.fecha|date:"F d, Y" }}</strong> - 🕒 {{ horario.hora }} en 🎬 {{ horario.sala }}
+            <a href="{% url 'seleccionar_sillas' horario.id_horario %}" class="boton-seleccionar">Seleccionar Sillas</a>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

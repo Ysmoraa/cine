@@ -1,0 +1,25 @@
+.banner-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slider {
+    display: flex;
+    width: 300%;
+    animation: slideAnimation 15s infinite;
+  }
+
+  .slide {
+    width: 100%;
+    object-fit: cover;
+  }
+
+  @keyframes slideAnimation {
+    0% { transform: translateX(0%); }
+    33% { transform: translateX(0%); }
+    36% { transform: translateX(-100%); }
+    66% { transform: translateX(-100%); }
+    69% { transform: translateX(-200%); }
+    100% { transform: translateX(-200%); }
+  }

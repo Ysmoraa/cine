@@ -1,0 +1,12 @@
+<h1>Selecciona un horario para {{ pelicula.titulo }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <select name="horario_id">
+        {% for horario in horarios %}
+            <option value="{{ horario.id_horario }}">
+                {{ horario.fecha }} - {{ horario.hora }} ({{ horario.sala }})
+            </option>
+        {% endfor %}
+    </select>
+    <button type="submit">Confirmar</button>
+</form>

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <h2>🎦 Salas de Cine</h2>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Capacidad</th>
+                    <th>Filas</th>
+                    <th>Columnas</th>
+                    {% if request.user.is_staff %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for sala in salas %}
+                <tr>
+                    <td>{{ sala.nombre }}</td>
+                    <td>{{ sala.tipo_sala }}</td>
+                    <td>{{ sala.capacidad }}</td>
+                    <td>{{ sala.filas }}</td>
+                    <td>{{ sala.columnas }}</td>
+                    {% if request.user.is_staff %}
+                        <td>
+                            <form method="POST" action="{% url 'eliminar_sala' sala.id_sala %}" onsubmit="return confirm('¿Seguro que quieres eliminar esta película?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No hay salas registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'crear_sala' %}" class="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" style="color: rgb(10, 10, 10); margin-right: 20px;">Crear Salas</a>
+    </div>
+{% endblock %}

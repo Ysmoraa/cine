@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="reservas-container">
+    <h2>🎟️ Mis Reservas</h2>
+
+    {% if reservas %}
+        {% for reserva in reservas %}
+            <div class="reserva-card">
+                <p><strong>Película:</strong> {{ reserva.horario.pelicula.titulo }}</p>
+                <p><strong>Sala:</strong> {{ reserva.horario.sala.nombre }}</p>
+                <p><strong>Fecha:</strong> {{ reserva.horario.fecha|date:"F d, Y" }} - {{ reserva.horario.hora }}</p>
+                <p><strong>Sillas:</strong> 
+                    <span class="sillas">
+                        {% for silla in reserva.sillas.all %}
+                            {{ silla.fila }}{{ silla.columna }}
+                        {% endfor %}
+                    </span>
+                </p>
+                <form method="POST" action="{% url 'eliminar_reservas' reserva.id_reserva %}" onsubmit="return confirm('¿Seguro que quieres eliminar esta película?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">🗑 Eliminar</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No tienes reservas activas.</p>
+    {% endif %}
+</div>
+
+
+{% endblock %}

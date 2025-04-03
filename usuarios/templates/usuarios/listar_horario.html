@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>📅 Horarios de Películas</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Película</th>
+                <th>Sala</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                {% if request.user.is_staff %}
+                    <th>Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for horario in horarios %}
+            <tr>
+                <td>{{ horario.pelicula.titulo }}</td>
+                <td>{{ horario.sala.nombre }} ({{ horario.sala.tipo_sala }})</td>
+                <td>{{ horario.fecha }}</td>
+                <td>{{ horario.hora }}</td>
+                {% if request.user.is_staff %}
+                    <td>
+                        <form method="POST" action="{% url 'eliminar_horarios' horario.id_horario %}" onsubmit="return confirm('¿Seguro que quieres eliminar esta película?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">🗑 Eliminar</button>
+                        </form>
+                    </td>
+                {% endif %}
+            </tr>
+            {% empty %}
+                <tr><td colspan="5">No hay horarios disponibles.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'crear_horarios' %}" class="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" style="color: rgb(10, 10, 10); margin-right: 20px;">Crear Horarios</a>
+</div>
+{% endblock %}

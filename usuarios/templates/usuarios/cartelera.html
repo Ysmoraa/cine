@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Carrusel de Imágenes -->
+<div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="{% static 'usuarios/img/banner1.png' %}" class="d-block w-100" alt="Imagen 1">
+        </div>
+        <div class="carousel-item">
+            <img src="{% static 'usuarios/img/banner2.png' %}" class="d-block w-100" alt="Imagen 2">
+        </div>
+        <div class="carousel-item">
+            <img src="{% static 'usuarios/img/banner3.png' %}" class="d-block w-100" alt="Imagen 3">
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
+<!-- Fin Carrusel -->
+
+<h1>🎬 Cartelera</h1>
+<div class="cartelera-container">
+    {% for pelicula in peliculas %}
+        <div class="card">
+            {% if pelicula.estreno %}
+                <span class="badge estreno">Estreno</span>
+            {% elif pelicula.preventa %}
+                <span class="badge preventa">Preventa</span>
+            {% endif %}
+
+            <img src="{{ pelicula.imagen.url }}" alt="{{ pelicula.titulo }}">
+            <h3>{{ pelicula.titulo }}</h3>
+            <div class="tags">
+                <span>{{ pelicula.genero }}</span>
+                <span>{{ pelicula.formato }}</span>
+            </div>
+            <div class="rating">
+                {% for i in "12345"|slice:":pelicula.calificacion" %}
+                    <span class="star">&#9733;</span>
+                {% endfor %}
+                {% for i in "12345"|slice:"pelicula.calificacion:" %}
+                    <span class="star empty">&#9734;</span>
+                {% endfor %}
+            </div>
+            <a href="{{ pelicula.trailer_url }}" target="_blank" class="trailer-btn">🎥 Ver Trailer</a>
+            <a href="{% url 'detalle_pelicula' pelicula.id_pelicula %}">Ver Detalle</a>
+
+            <!-- Botón eliminar visible solo para staff -->
+            {% if request.user.is_staff %}
+                <form method="POST" action="{% url 'eliminar_pelicula' pelicula.id_pelicula %}" onsubmit="return confirm('¿Seguro que quieres eliminar esta película?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">🗑 Eliminar</button>
+                </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No hay películas disponibles en la cartelera.</p>
+    {% endfor %}
+</div>
+{% endblock %}
