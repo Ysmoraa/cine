@@ -105,3 +105,26 @@ body {
 .close-btn:hover {
     color: #fff;
 }
+
+.alert-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.alert-danger {
+    background-color: #ffdddd;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+}
+
+.alert-success {
+    background-color: #ddffdd;
+    color: #4f8a10;
+    border: 1px solid #4f8a10;
+}

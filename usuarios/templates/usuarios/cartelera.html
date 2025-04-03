@@ -63,4 +63,20 @@
         <p>No hay películas disponibles en la cartelera.</p>
     {% endfor %}
 </div>
+
+<!-- Paginación -->
+<div class="pagination">
+    {% if peliculas.has_previous %}
+        <a href="?page=1">⏮ Primera</a>
+        <a href="?page={{ peliculas.previous_page_number }}">⬅ Anterior</a>
+    {% endif %}
+
+    <span>Página {{ peliculas.number }} de {{ peliculas.paginator.num_pages }}</span>
+
+    {% if peliculas.has_next %}
+        <a href="?page={{ peliculas.next_page_number }}">Siguiente ➡</a>
+        <a href="?page={{ peliculas.paginator.num_pages }}">Última ⏭</a>
+    {% endif %}
+</div>
+
 {% endblock %}

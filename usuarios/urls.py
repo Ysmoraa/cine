@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
-from .views import agregar_pelicula,detalle_pelicula,seleccionar_sillas, reservar_sillas, mis_reservas,eliminar_pelicula, crear_sala, ver_salas, eliminar_sala, crear_horarios, listar_horarios, eliminar_horarios, eliminar_reservas
+from .views import agregar_pelicula,detalle_pelicula,seleccionar_sillas, reservar_sillas, mis_reservas,eliminar_pelicula, crear_sala, ver_salas, eliminar_sala, crear_horarios, listar_horarios, eliminar_horarios, eliminar_reservas, listar_horarios_disponibles
 urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('registro/', views.registro_view, name='registro'),
@@ -19,7 +19,7 @@ urlpatterns = [
     path('ver_salas/', ver_salas, name='ver_salas'),
     path('eliminar_sala/<int:id_sala>/', eliminar_sala, name='eliminar_sala'),
     path('crear_horarios/', crear_horarios, name='crear_horarios'),
-    path('listar_horarios/', listar_horarios, name='listar_horarios'),
+    path("horarios/", listar_horarios_disponibles, name="listar_horarios"),
     path('eliminar_horarios/<int:id_horario>/', eliminar_horarios, name='eliminar_horarios'),
     path('eliminar_reservas/<int:id_reserva>/', eliminar_reservas, name='eliminar_reservas'),
 ]

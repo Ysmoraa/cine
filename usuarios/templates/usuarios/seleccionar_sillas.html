@@ -5,7 +5,6 @@
 
 <div class="estado-sillas">
     <div><span class="silla disponible"></span> Disponible</div>
-    <div><span class="silla no-disponible"></span> No disponible</div>
     <div><span class="silla ocupada"></span> Ocupada</div>
     <div><span class="silla escogida"></span> Escogida</div>
 </div>
@@ -17,9 +16,12 @@
 
     <div class="sala">
         {% for silla in sillas %}
-            <div class="silla {{ silla.estado }}" 
-                 data-silla-id="{{ silla.id_silla }}" 
-                 onclick="seleccionarSilla(this)">
+            {% if silla.id_silla in sillas_ocupadas %}
+            <p>{{ silla.id_silla }} - Fila: {{ silla.fila }}, Columna: {{ silla.columna }}</p>
+                <div class="silla ocupada" data-silla-id="{{ silla.id_silla }}">
+            {% else %}
+                <div class="silla disponible" data-silla-id="{{ silla.id_silla }}" onclick="seleccionarSilla(this)">
+            {% endif %}
                 {{ silla.numero_silla }}
             </div>
         {% endfor %}
@@ -32,57 +34,7 @@
 </form>
 
 <style>
-    /* General */
-    .titulo {
-        text-align: center;
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
-    
-    .titulo span {
-        font-size: 28px;
-        font-weight: bold;
-        color: #007bff;
-    }
-
-    .estado-sillas {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .estado-sillas div {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .pantalla {
-        text-align: center;
-        font-size: 16px;
-        font-weight: bold;
-        padding: 10px;
-        background: #222;
-        color: white;
-        width: 60%;
-        margin: 0 auto 20px;
-        border-radius: 10px;
-    }
-
-    .sala {
-        display: grid;
-        grid-template-columns: repeat(10, 50px);
-        gap: 8px;
-        justify-content: center;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
-        margin: auto;
-    }
-
+    /* Estilos de las sillas */
     .silla {
         width: 50px;
         height: 50px;
@@ -96,38 +48,107 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    .disponible { background-color: #28a745; color: white; }
-    .no-disponible { background-color: #dc3545; color: white; pointer-events: none; }
-    .ocupada { background-color: #6c757d; color: white; pointer-events: none; }
-    .escogida { background-color: #007bff; color: white; }
+    .pantalla {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    background: #222;
+    color: white;
+    width: 60%;
+    margin: 0 auto 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
-    .silla:hover {
-        transform: scale(1.1);
-    }
+/* Leyenda de las sillas */
+.estado-sillas {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
 
-    .seleccionadas-texto {
-        text-align: center;
-        font-size: 18px;
-        margin-top: 15px;
-    }
+.estado-sillas div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+}
 
-    .boton-confirmar {
-        display: block;
-        margin: 20px auto;
-        padding: 10px 20px;
-        font-size: 18px;
-        font-weight: bold;
-        color: white;
-        background: #007bff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.3s ease;
-    }
+.estado-sillas .silla {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 5px;
+}
 
-    .boton-confirmar:hover {
-        background: #0056b3;
-    }
+/* Contenedor de la sala y sillas */
+.sala {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* Ajusta la cantidad de columnas */
+    gap: 10px;
+    justify-content: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px; 
+    margin: auto;
+}
+
+/* Estilos de las sillas */
+.silla {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.disponible { background-color: #28a745; color: white; }
+.ocupada { background-color: #dc3545; color: white; pointer-events: none; }
+.escogida { background-color: #007bff; color: white; }
+
+.silla:hover {
+    transform: scale(1.1);
+}
+
+/* Botón de confirmar selección */
+.boton-confirmar {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: #007bff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.boton-confirmar:hover {
+    background: #0056b3;
+}
+    .sala {
+    display: grid;
+    grid-template-columns: repeat(8, 50px); /* 8 columnas ajustables según necesidad */
+    gap: 8px;
+    justify-content: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px; /* Ajusta el ancho del contenedor */
+    margin: auto;
+}
 </style>
 
 <script>
@@ -139,9 +160,11 @@
         if (sillasSeleccionadas.includes(idSilla)) {
             sillasSeleccionadas = sillasSeleccionadas.filter(id => id !== idSilla);
             elemento.classList.remove("escogida");
+            elemento.classList.add("disponible");
         } else {
             sillasSeleccionadas.push(idSilla);
             elemento.classList.add("escogida");
+            elemento.classList.remove("disponible");
         }
 
         document.getElementById("sillas_seleccionadas").value = sillasSeleccionadas.join(",");
@@ -152,3 +175,4 @@
 </script>
 
 {% endblock %}
+

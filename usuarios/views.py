@@ -10,6 +10,9 @@ from .models import Horario, Silla, Sala, Reserva
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.decorators import user_passes_test
+from django.utils import timezone
+from datetime import datetime, timedelta
+
 
 
 def registro_view(request):
@@ -19,25 +22,32 @@ def registro_view(request):
             usuario = form.save(commit=False)  # Guardamos sin confirmar
             usuario.set_password(form.cleaned_data["password1"])  # Encriptamos la contraseña
             usuario.save()  # Ahora sí guardamos
-            messages.success(request, 'Usuario registrado correctamente.')
+
+            messages.success(request, '✅ Usuario registrado correctamente. ¡Inicia sesión!')
             return redirect('login')  # Redirige al login
         else:
-            print(form.errors)  # 🔴 Muestra los errores en la terminal
+            messages.error(request, '❌ Error en el formulario. Revisa los campos.')
+            print(form.errors)  # 🔴 Muestra los errores en la terminal para depuración
+
     else:
         form = RegistroForm()
-    
+
     return render(request, 'usuarios/registro.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
         user = authenticate(request, email=email, password=password)
+
         if user:
             login(request, user)
-            return redirect('cartelera')  # 🔥 Redirige a la vista que carga las películas
+            messages.success(request, "✅ Inicio de sesión exitoso.")
+            return redirect('cartelera')  # Redirige a la cartelera o donde desees
         else:
-            return render(request, 'usuarios/login.html', {'error': 'Credenciales incorrectas'})
+            messages.error(request, "❌ Correo o contraseña incorrectos.")
+
     return render(request, 'usuarios/login.html')
 
 def logout_view(request):
@@ -52,7 +62,9 @@ def cartelera(request):
 def agregar_pelicula(request):
     if not request.user.is_staff:
         messages.error(request, '⚠️ No tienes permisos para agregar películas.')
-        return redirect('cartelera')  # Cambia por la URL de tu cartelera si es otra
+        return redirect('cartelera')  # Ajusta la URL si es otra
+
+    salas = Sala.objects.all()  # Obtener todas las salas
 
     if request.method == 'POST':
         form = PeliculaForm(request.POST, request.FILES)
@@ -60,6 +72,10 @@ def agregar_pelicula(request):
             tipo = request.POST.get('tipo')
 
             pelicula = form.save(commit=False)
+            sala_id = request.POST.get("sala")
+            if sala_id:
+                pelicula.sala = Sala.objects.get(id_sala=sala_id)  # Se asigna la sala correctamente
+            
             pelicula.sinopsis = request.POST.get('sinopsis')  # Captura la sinopsis desde el formulario
 
             if tipo == 'Estreno':
@@ -71,19 +87,41 @@ def agregar_pelicula(request):
 
             pelicula.save()
             messages.success(request, f'🎬 La película "{pelicula.titulo}" fue agregada exitosamente.')
-            return redirect('agregar_pelicula')  # Ajusta si quieres redirigir a otro lado
+            return redirect('agregar_pelicula')  # Ajusta la redirección si es necesario
         else:
             messages.error(request, '❌ Error al agregar la película. Revisa los campos.')
 
     else:
         form = PeliculaForm()
 
-    return render(request, 'usuarios/agregar_pelicula.html', {'form': form})
+    return render(request, 'usuarios/agregar_pelicula.html', {'form': form, 'salas': salas})
+
+def listar_horarios_disponibles(request):
+    hoy = timezone.localtime(timezone.now()).date()
+    horarios = Horario.objects.filter(fecha__gte=hoy).order_by("fecha", "hora")
+
+    return render(request, "usuarios/listar_horario.html", {"horarios": horarios})
 
 def detalle_pelicula(request, id_pelicula):
     pelicula = get_object_or_404(Pelicula, id_pelicula=id_pelicula)
-    horarios = Horario.objects.filter(pelicula=pelicula)
-    return render(request, 'usuarios/detalle_pelicula.html', {'pelicula': pelicula, 'horarios': horarios})
+    hoy = datetime.now().date()
+
+    # Generar los próximos 7 días
+    fechas_disponibles = [hoy + timedelta(days=i) for i in range(7)]
+
+    # Filtrar horarios para los próximos 7 días
+    horarios = Horario.objects.filter(pelicula=pelicula, fecha__range=(hoy, fechas_disponibles[-1])).order_by('fecha', 'hora')
+
+    # Agrupar los horarios por fecha
+    horarios_por_dia = {fecha: [] for fecha in fechas_disponibles}
+    for horario in horarios:
+        if horario.fecha in horarios_por_dia:
+            horarios_por_dia[horario.fecha].append(horario)
+
+    return render(request, 'usuarios/detalle_pelicula.html', {
+        'pelicula': pelicula,
+        'horarios_por_dia': horarios_por_dia
+    })
 
 def seleccionar_horario(request, id_pelicula):
     pelicula = get_object_or_404(Pelicula, id_pelicula=id_pelicula)
@@ -99,17 +137,28 @@ def seleccionar_sillas(request, horario_id):
     horario = get_object_or_404(Horario, id_horario=horario_id)
     sillas = Silla.objects.filter(sala=horario.sala)
 
+    # Obtener las sillas reservadas solo para este horario
+    sillas_ocupadas = Reserva.objects.filter(horario=horario).values_list('sillas__id_silla', flat=True)
+
     if request.method == 'POST':
         sillas_seleccionadas = request.POST.getlist('sillas')
-        for silla_id in sillas_seleccionadas:
-            silla = Silla.objects.get(id_silla=silla_id)
-            silla.estado = 'escogida'
-            silla.save()
+        reserva = Reserva.objects.create(horario=horario, usuario=request.user)
+        reserva.sillas.set(Silla.objects.filter(id_silla__in=sillas_seleccionadas))  # Asignar las sillas
 
         return redirect('confirmar_compra')
 
-    return render(request, 'usuarios/seleccionar_sillas.html', {'horario': horario, 'sillas': sillas})
+    return render(request, 'usuarios/seleccionar_sillas.html', {
+        'horario': horario,
+        'sillas': sillas,
+        'sillas_ocupadas': list(sillas_ocupadas)  # Enviar la lista de IDs ocupados
+    })
 
+    return render(request, 'usuarios/seleccionar_sillas.html', {
+        'horario': horario,
+        'sillas': sillas,
+        'sillas_ocupadas': list(sillas_ocupadas)  # Enviar la lista de IDs ocupados
+    })
+    
 @receiver(post_save, sender=Sala)
 def crear_sillas(sender, instance, created, **kwargs):
     if created:

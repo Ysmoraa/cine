@@ -14,51 +14,36 @@
       <h2>REGISTRO DE USUARIO</h2>
     </div>
 
+    <!-- Muestra los mensajes -->
+    {% if messages %}
+      <div class="alert-container">
+        {% for message in messages %}
+          <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <div class="form-container">
       <form method="POST">
         {% csrf_token %}
         
-        <label for="{{ form.email.id_for_label }}">Correo Electrónico *</label>
-        {{ form.email }}
-    
-        <label for="{{ form.nombres.id_for_label }}">Nombres *</label>
-        {{ form.nombres }}
-    
-        <label for="{{ form.apellidos.id_for_label }}">Apellidos *</label>
-        {{ form.apellidos }}
-    
-        <label for="{{ form.direccion.id_for_label }}">Dirección *</label>
-        {{ form.direccion }}
-    
-        <label for="{{ form.telefono.id_for_label }}">Teléfono *</label>
-        {{ form.telefono }}
-    
-        <label for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de Nacimiento *</label>
-        {{ form.fecha_nacimiento }}
-    
-        <label for="{{ form.ciudad.id_for_label }}">Ciudad *</label>
-        {{ form.ciudad }}
-    
-        <label for="{{ form.tipo_documento.id_for_label }}">Tipo de Documento *</label>
-        {{ form.tipo_documento }}
-    
-        <label for="{{ form.documento.id_for_label }}">Documento *</label>
-        {{ form.documento }}
-    
-        <label for="{{ form.genero.id_for_label }}">Género *</label>
-        {{ form.genero }}
-    
-        <label for="{{ form.password1.id_for_label }}">Contraseña *</label>
-        {{ form.password1 }}
-    
-        <label for="{{ form.password2.id_for_label }}">Confirmar Contraseña *</label>
-        {{ form.password2 }}
-    
+        {% for field in form %}
+          <label for="{{ field.id_for_label }}">{{ field.label }} *</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="error-message">
+              {{ field.errors|striptags }}
+            </div>
+          {% endif %}
+        {% endfor %}
+
         <button type="submit" class="btn btn-success">¡Registrar ahora!</button>
-    </form>
-    
+      </form>
+      
       <div class="info-box">
-        <p>Llena este formulario con todos tus datos, correctos y verificables. Escribe todo en minúsculas. Los campos con (*) son obligatorios.</p>
+        <p>Llena este formulario con datos verificables. Escribe en minúsculas. Los campos con (*) son obligatorios.</p>
       </div>
     </div>
 

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, User
 from django.db import models
 from django.conf import settings
+from datetime import timedelta, time
+from django.utils import timezone
 
 
 class UsuarioManager(BaseUserManager):
@@ -54,18 +56,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombres', 'apellidos']
 
-class Pelicula(models.Model):
-    id_pelicula = models.AutoField(primary_key=True)
-    titulo = models.CharField(max_length=200)
-    imagen = models.ImageField(upload_to='peliculas/')
-    sinopsis = models.TextField(default="Sinopsis no disponible.")
-    genero = models.CharField(max_length=100)
-    formato = models.CharField(max_length=50)  # 2D, 3D, 4DX
-    estreno = models.BooleanField(default=False)
-    preventa = models.BooleanField(default=False)
-    trailer_url = models.URLField()
-    calificacion = models.IntegerField(default=0)  # de 1 a 5 estrellas
-
 class Sala(models.Model):
     TIPO_SALA_CHOICES = [
         ('2D', '2D'),
@@ -83,6 +73,44 @@ class Sala(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.tipo_sala})"
+
+class Pelicula(models.Model):
+    id_pelicula = models.AutoField(primary_key=True)
+    titulo = models.CharField(max_length=200)
+    imagen = models.ImageField(upload_to='peliculas/')
+    sinopsis = models.TextField(default="Sinopsis no disponible.")
+    genero = models.CharField(max_length=100)
+    formato = models.CharField(max_length=50)  # 2D, 3D, 4DX
+    estreno = models.BooleanField(default=False)
+    preventa = models.BooleanField(default=False)
+    trailer_url = models.URLField()
+    calificacion = models.IntegerField(default=0)  # de 1 a 5 estrellas
+    sala = models.ForeignKey(Sala, on_delete=models.SET_NULL, related_name="peliculas", null=True, blank=True)
+
+    def __str__(self):
+        return self.titulo
+
+
+    def save(self, *args, **kwargs):
+        """Al guardar una película, generar horarios automáticamente si no existen."""
+        super().save(*args, **kwargs)
+        self.generar_horarios()
+
+    def generar_horarios(self):
+        """Genera horarios automáticamente para los próximos 7 días en la sala seleccionada"""
+        horarios_fijos = [time(14, 0), time(17, 0), time(20, 0)]  # 2:00pm, 5:00pm, 8:00pm
+        hoy = timezone.localtime(timezone.now()).date()
+
+        for i in range(7):  # Generar para los próximos 7 días
+            fecha = hoy + timedelta(days=i)
+            for hora in horarios_fijos:
+                # Verificar que no exista un horario duplicado
+                if not Horario.objects.filter(pelicula=self, sala=self.sala, fecha=fecha, hora=hora).exists():
+                    Horario.objects.create(pelicula=self, sala=self.sala, fecha=fecha, hora=hora)
+
+    
+
+
 
 class Horario(models.Model):
     id_horario = models.AutoField(primary_key=True)
@@ -104,6 +132,7 @@ class Silla(models.Model):
 
     id_silla = models.AutoField(primary_key=True)
     sala = models.ForeignKey(Sala, on_delete=models.CASCADE, related_name='sillas')
+    horario = models.ForeignKey('Horario', on_delete=models.CASCADE, null=True, blank=True) 
     fila = models.PositiveIntegerField(default=10)  # Agregar este campo
     columna = models.PositiveIntegerField(default=10)  # Agregar este campo
     estado = models.CharField(max_length=15, choices=ESTADO_SILLA_CHOICES, default='disponible')

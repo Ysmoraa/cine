@@ -66,17 +66,6 @@ input, select {
   transition: background 0.3s;
 }
 
-.btn-registrar {
-  background-color: #28a745; /* Verde */
-  color: white;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s;
-}
-
 .btn-registrar:hover {
   background-color: #218838; /* Verde más oscuro */
 }
@@ -87,4 +76,32 @@ input, select {
   color: white;
   padding: 20px;
   border-radius: 8px;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.alert-container {
+  margin-bottom: 15px;
+}
+
+.alert {
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.alert-danger {
+  background-color: #ffdddd;
+  color: #d8000c;
+  border: 1px solid #d8000c;
+}
+
+.alert-success {
+  background-color: #ddffdd;
+  color: #4f8a10;
+  border: 1px solid #4f8a10;
 }

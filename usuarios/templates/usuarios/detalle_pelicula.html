@@ -14,14 +14,142 @@
     </div>
 </div>
 
-<h2>⏰ Horarios Disponibles</h2>
-<ul class="horarios-lista">
-    {% for horario in horarios %}
-        <li>
-            📅 <strong>{{ horario.fecha|date:"F d, Y" }}</strong> - 🕒 {{ horario.hora }} en 🎬 {{ horario.sala }}
-            <a href="{% url 'seleccionar_sillas' horario.id_horario %}" class="boton-seleccionar">Seleccionar Sillas</a>
-        </li>
-    {% endfor %}
-</ul>
+<h2 class="text-center">⏰ Horarios Disponibles</h2>
+
+<div class="carousel-container">
+    <button class="prev" onclick="moverIzquierda()">❮</button>
+
+    <div class="horarios-wrapper">
+        <div class="horarios-lista">
+            {% for fecha, horarios in horarios_por_dia.items %}
+                <div class="horario-card">
+                    <h3>📅 {{ fecha|date:"l, d F" }}</h3>
+                    <ul>
+                        {% for horario in horarios %}
+                            <li>
+                                🕒 {{ horario.hora }} en 🎬 {{ horario.sala }}
+                                <br>
+                                <a href="{% url 'seleccionar_sillas' horario.id_horario %}" class="boton-seleccionar">Seleccionar Sillas</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <button class="next" onclick="moverDerecha()">❯</button>
+</div>
+
+<style>
+    .carousel-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .horarios-wrapper {
+        overflow: hidden;
+        width: 75%;
+        max-width: 900px;
+    }
+
+    .horarios-lista {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    /* Tarjetas más anchas (37% en lugar de 32%) */
+    .horario-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        min-width: 37%;
+        max-width: 37%;
+        flex: 0 0 37%;
+        margin: 10px;
+        font-size: 18px;
+    }
+
+    .horario-card h3 {
+        color: #333;
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .horario-card ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .horario-card li {
+        margin: 10px 0;
+        font-size: 16px;
+    }
+
+    .boton-seleccionar {
+        display: inline-block;
+        padding: 12px 18px;
+        background: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .boton-seleccionar:hover {
+        background: #218838;
+    }
+
+    .prev, .next {
+        background-color: #333;
+        color: white;
+        border: none;
+        padding: 15px;
+        cursor: pointer;
+        font-size: 24px;
+        border-radius: 8px;
+    }
+
+    .prev:hover, .next:hover {
+        background-color: #555;
+    }
+</style>
+
+<script>
+let index = 0;
+const visible = 3;
+const lista = document.querySelector('.horarios-lista');
+const tarjetas = document.querySelectorAll('.horario-card');
+const total = tarjetas.length;
+
+function actualizarCarrusel() {
+    const desplazamiento = index * -(100 / visible) + "%";
+    lista.style.transform = `translateX(${desplazamiento})`;
+}
+
+function moverIzquierda() {
+    if (index > 0) {
+        index--;
+        actualizarCarrusel();
+    }
+}
+
+function moverDerecha() {
+    if (index < total - visible) {
+        index++;
+        actualizarCarrusel();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", actualizarCarrusel);
+</script>
 
 {% endblock %}
+
+

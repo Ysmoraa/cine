@@ -15,6 +15,15 @@
       <span class="close-btn">&times;</span>
       
       <h2>🎟️ Iniciar Sesión</h2>
+      {% if messages %}
+  <div class="alert-container">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
       <form method="POST">
         {% csrf_token %}

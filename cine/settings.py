@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-po-o+ytntvc@p@-eri_p8$gy%ylebm)#q$12b)2kjx01y@-4q%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cine-production-7389.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1','cine-production-7389.up.railway.app']
 
 
 # Application definition
@@ -105,9 +105,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
